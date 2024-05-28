@@ -4,7 +4,7 @@ import random
 
 # упражнение 1:
 class Vector:
-    def __init__(self, x, y):
+    def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
 
@@ -18,11 +18,13 @@ class Vector:
     def __sub__(self, other):
         return Vector(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, other):
-        return Vector(self.x * other.x, self.y * other.y)
+    def __mul__(self, multiplier):
+        # other - число
+        return Vector(self.x * multiplier, self.y * multiplier)
 
     def __rmul__(self, other):
-        return Vector(self.x * other.x, self.y * other.y)
+    def __rmul__(self, multiplier):
+        return Vector(self.x * multiplier, self.y * multiplier)
 
     def __neg__(self):
         return self.x * (-1), self.y * (-1)
@@ -30,23 +32,26 @@ class Vector:
     def value(self):
         return self.x, self.y
 
+    def intpair(self):
+        return int(self.x), int(self.y)
 
-# упражнение 2: ???
+
+# упражнение 2: реализовать одну формулу
 # упражнение 3:
 class Ball:
-    def __init__(self, mass, coords, velocity, radius, color):
+    def __init__(self, mass, radius, color,  coords=Vector(), velocity=Vector()):
         self.mass = mass
         self.coords = coords
         self.velocity = velocity
         self.radius = radius
         self.color = color
 
-    # def update(self, dt):
-    #     return None
-    # как???
+    def update(self, dt):
+        self.coords.x += self.velocity.x * dt
+        self.coords.y += self.velocity.y * dt
 
     def render(self):
-        pg.draw.circle(screen, self.color, (self.coords[0], self.coords[1]), self.radius)
+        pg.draw.circle(screen, self.color, (self.coords.x, self.coords.y), self.radius)
 
 
 pg.init()
@@ -59,10 +64,10 @@ while running:
     dt = clock.tick(60) / 1000
     for event in pg.event.get():
         if event.type == pg.MOUSEBUTTONDOWN and pg.mouse.get_pressed()[0]:
-            clicked_balls = [True if created_balls[i].coords[0] - created_balls[i].radius <=
-                                    pg.mouse.get_pos()[0] <= created_balls[i].coords[0] + created_balls[i].radius
-                                    and created_balls[i].coords[1] - created_balls[i].radius <=
-                                    pg.mouse.get_pos()[1] <= created_balls[i].coords[1] + created_balls[i].radius
+            clicked_balls = [True if created_balls[i].coords.x - created_balls[i].radius <=
+                                    pg.mouse.get_pos()[0] <= created_balls[i].coords.x + created_balls[i].radius
+                                    and created_balls[i].coords.y - created_balls[i].radius <=
+                                    pg.mouse.get_pos()[1] <= created_balls[i].coords.y + created_balls[i].radius
                              else False for i in range(len(created_balls))]
             if any(clicked_balls):
                 # Упражнение 4:
@@ -71,7 +76,7 @@ while running:
                 created_balls[clicked_balls.index(True)].render()
                 # Упражнение 5:
             else:
-                created_balls.append(Ball(1, pg.mouse.get_pos(), 5, 30, (255, 255, 255)))
+                created_balls.append(Ball(mass=1, coords=Vector(*pg.mouse.get_pos()), radius=30, color=(255, 255, 255)))
                 created_balls[-1].render()
         if event.type == pg.QUIT:
             running = False
